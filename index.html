@@ -218,6 +218,7 @@
           <div class="mod"><h4>Proveedores y órdenes</h4><p>Registro de proveedores y órdenes de servicio.</p></div>
           <div class="mod"><h4>Finanzas</h4><p>Cuotas mensuales, pagos con recibo, morosidad, egresos y carga masiva desde archivos.</p></div>
           <div class="mod"><h4>Repositorio documental</h4><p>Archivos de hasta 10 MB, anulación con motivo e integridad con SHA-256.</p></div>
+          <div class="mod"><h4>Operación</h4><p>Panel de inicio según el rol, copias de seguridad que incluyen los documentos y avisos diarios por correo.</p></div>
         </div>
 
         <h5>Seguridad y control</h5>
@@ -240,23 +241,25 @@
           <p>Conserva el historial, que era justo el problema central.</p></details>
         <details><summary>Auditoría dentro de la misma transacción</summary>
           <p>Cada cambio guarda sus valores antes y después en la misma transacción que la acción: si una falla, falla la otra.</p></details>
-        <details><summary>Dinero en céntimos con BigInt</summary>
-          <p>Evita errores de redondeo en cuotas, pagos y cobranzas.</p></details>
+        <details><summary>Dinero sin errores de redondeo</summary>
+          <p>Los montos se manejan en céntimos con BigInt, sin decimales flotantes, para que cuotas, pagos y cobranzas cuadren siempre al céntimo.</p></details>
         <details><summary>Permisos leídos de la base de datos en cada petición</summary>
           <p>No se confía en la cookie: un cambio de rol o una desactivación se aplica al instante.</p></details>
-        <details><summary>Autenticación propia en vez de un servicio externo</summary>
-          <p>Con bcrypt y una cookie JWT firmada, aprovechando que ya existía la tabla de usuarios.</p></details>
-        <details><summary>PostgreSQL local en vez de Supabase</summary>
-          <p>El servidor final lo aloja el ingeniero a cargo. Como el código no dependía de Supabase, solo cambiaron las URLs de conexión.</p></details>
-        <details><summary>Documentos dentro de la base de datos</summary>
-          <p>Con un único punto de acceso al contenido: la copia de seguridad lo cubre todo y migrar a la nube implicaría cambiar un solo archivo.</p></details>
+        <details><summary>Autenticación y sesiones propias</summary>
+          <p>Contraseñas con bcrypt y sesiones con cookie JWT firmada, sin depender de un servicio externo para el acceso.</p></details>
+        <details><summary>Infraestructura portable</summary>
+          <p>El código no depende de ningún proveedor: la conexión a la base de datos se define por configuración, así que cambiar de servidor no requiere tocar la lógica.</p></details>
+        <details><summary>Documentos respaldados junto con el resto de los datos</summary>
+          <p>Los archivos viven en la base de datos con un único punto de acceso: una sola copia de seguridad lo cubre todo y el almacenamiento puede cambiar sin tocar el resto del sistema.</p></details>
+        <details><summary>Esquema versionado con migraciones</summary>
+          <p>El esquema se gestiona con Prisma Migrate, así que cualquier entorno se reconstruye idéntico y cada cambio queda registrado.</p></details>
 
         <h5>Retos resueltos</h5>
         <ul class="flat">
           <li><b>Bloqueo de login:</b> contador atómico, sin comparar la contraseña mientras la cuenta está bloqueada.</li>
           <li><b>Archivos grandes en Next.js:</b> descubrí que el proxy cortaba en silencio los cuerpos de más de 10 MB y lo resolví con configuración específica.</li>
           <li><b>Descargas protegidas:</b> validan sesión, permiso, tipo real del archivo (por firma de bytes) e integridad con SHA-256.</li>
-          <li><b>Avisos diarios por correo:</b> contenido distinto según el rol, con una tarea programada de Windows.</li>
+          <li><b>Avisos diarios por correo:</b> contenido distinto según el rol, ejecutados por una tarea programada.</li>
           <li><b>Lógica probada:</b> reglas de negocio en funciones puras con scripts de prueba propios (34 reglas solo en permisos).</li>
         </ul>
       </div>
